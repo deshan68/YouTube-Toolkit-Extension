@@ -45,73 +45,80 @@ function HomePage() {
   const [isError, setIsError] = useState<boolean>(false);
 
   const subtitleStart = async (updatedSubs?: Subtitle[]) => {
-    let [tab] = await chrome.tabs.query({ active: true });
-    chrome.scripting.executeScript<string[], void>({
-      target: { tabId: tab.id! },
-      args: [currentUrlId, JSON.stringify(updatedSubs || syncedSubtitles)],
-      func: (currentUrlId, serializedSubtitles: string) => {
-        let timeUpdateListener: (() => void) | null = null;
-        const subtitles: Subtitle[] = JSON.parse(serializedSubtitles);
+    try {
+      let [tab] = await chrome.tabs.query({ active: true });
+      chrome.scripting.executeScript<string[], void>({
+        target: { tabId: tab.id! },
+        args: [currentUrlId, JSON.stringify(updatedSubs || syncedSubtitles)],
+        func: (currentUrlId, serializedSubtitles: string) => {
+          let timeUpdateListener: (() => void) | null = null;
+          const subtitles: Subtitle[] = JSON.parse(serializedSubtitles);
 
-        const removeSubtitleElements = () => {
-          const subTitleElement = document.querySelector(".sub-title-div");
-          const testDiv = document.querySelector(".test-div");
-          if (subTitleElement) subTitleElement.remove();
-          if (testDiv) testDiv.remove();
-        };
+          const removeSubtitleElements = () => {
+            const subTitleElement = document.querySelector(".sub-title-div");
+            const testDiv = document.querySelector(".test-div");
+            if (subTitleElement) subTitleElement.remove();
+            if (testDiv) testDiv.remove();
+          };
 
-        // Remove existing subtitle elements
-        removeSubtitleElements();
+          // Remove existing subtitle elements
+          removeSubtitleElements();
 
-        const previousSubTitleElement =
-          document.getElementsByClassName("sub-title-div");
-        if (previousSubTitleElement[0]) previousSubTitleElement[0].remove();
+          const previousSubTitleElement =
+            document.getElementsByClassName("sub-title-div");
+          if (previousSubTitleElement[0]) previousSubTitleElement[0].remove();
 
-        const youTubePlayer = document.querySelector("video");
-        const player = document.querySelector("#ytd-player");
-        if (!youTubePlayer || !player || !subtitles) return;
+          const youTubePlayer = document.querySelector("video");
+          const player = document.querySelector("#ytd-player");
+          if (!youTubePlayer || !player || !subtitles) return;
 
-        const subTitleElement = document.createElement("div");
-        subTitleElement.className = "sub-title-div";
-        subTitleElement.style.color = "white";
-        subTitleElement.style.fontSize = "30px";
-        subTitleElement.style.fontWeight = "bold";
-        subTitleElement.style.position = "absolute";
-        subTitleElement.style.bottom = "60px";
-        subTitleElement.style.left = "50%";
-        subTitleElement.style.transform = "translateX(-50%)";
-        subTitleElement.style.zIndex = "1000";
-        player.appendChild(subTitleElement);
+          const subTitleElement = document.createElement("div");
+          subTitleElement.className = "sub-title-div";
+          subTitleElement.style.color = "white";
+          subTitleElement.style.fontSize = "30px";
+          subTitleElement.style.fontWeight = "bold";
+          subTitleElement.style.position = "absolute";
+          subTitleElement.style.bottom = "60px";
+          subTitleElement.style.left = "50%";
+          subTitleElement.style.transform = "translateX(-50%)";
+          subTitleElement.style.zIndex = "1000";
+          player.appendChild(subTitleElement);
 
-        youTubePlayer.play();
+          youTubePlayer.play();
 
-        if (timeUpdateListener) {
-          youTubePlayer.removeEventListener("timeupdate", timeUpdateListener);
-        }
-
-        timeUpdateListener = () => {
-          if (
-            new URLSearchParams(window.location.search).get("v") !==
-              currentUrlId &&
-            timeUpdateListener
-          ) {
-            removeSubtitleElements();
+          if (timeUpdateListener) {
             youTubePlayer.removeEventListener("timeupdate", timeUpdateListener);
-            return;
           }
-          const currentTime = youTubePlayer.currentTime;
-          const currentSubtitle = subtitles.find(
-            (subtitle) =>
-              currentTime >= subtitle.start && currentTime <= subtitle.end
-          );
-          subTitleElement.innerText = currentSubtitle
-            ? currentSubtitle.text
-            : "";
-        };
 
-        youTubePlayer.addEventListener("timeupdate", timeUpdateListener);
-      },
-    });
+          timeUpdateListener = () => {
+            if (
+              new URLSearchParams(window.location.search).get("v") !==
+                currentUrlId &&
+              timeUpdateListener
+            ) {
+              removeSubtitleElements();
+              youTubePlayer.removeEventListener(
+                "timeupdate",
+                timeUpdateListener
+              );
+              return;
+            }
+            const currentTime = youTubePlayer.currentTime;
+            const currentSubtitle = subtitles.find(
+              (subtitle) =>
+                currentTime >= subtitle.start && currentTime <= subtitle.end
+            );
+            subTitleElement.innerText = currentSubtitle
+              ? currentSubtitle.text
+              : "";
+          };
+
+          youTubePlayer.addEventListener("timeupdate", timeUpdateListener);
+        },
+      });
+    } catch (error) {
+      console.error("Error executing script:", error);
+    }
   };
 
   chrome.runtime.onMessage.addListener((message) => {
@@ -324,7 +331,7 @@ function HomePage() {
       </Box>
     );
   }
-  
+
   if (isError) {
     return (
       <Container
