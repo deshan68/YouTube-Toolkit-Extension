@@ -1,7 +1,7 @@
 import "./App.css";
 import { Box, CssBaseline, Typography } from "@mui/joy";
 import { AppBar, Toolbar } from "@mui/material";
-import ClosedCaptionIcon from "@mui/icons-material/ClosedCaption";
+import SubtitlesIcon from "@mui/icons-material/Subtitles";
 import HomePage from "./components/HomePage";
 
 function App() {
@@ -22,9 +22,9 @@ function App() {
           <Typography
             level="title-lg"
             sx={{ fontFamily: "sans-serif", fontWeight: "600", color: "#ffff" }}
-            startDecorator={<ClosedCaptionIcon fontSize="medium" />}
+            startDecorator={<SubtitlesIcon fontSize="medium" />}
           >
-            Caption Craft
+            Subtitle Syncer
           </Typography>
           <Typography
             level="body-xs"

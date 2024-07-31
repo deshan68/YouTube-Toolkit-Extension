@@ -1,5 +1,4 @@
 import {
-  // Alert,
   Box,
   Container,
   LinearProgress,
@@ -7,7 +6,6 @@ import {
   ListItem,
   Typography,
 } from "@mui/joy";
-// import ReportIcon from "@mui/icons-material/Report";
 import Button from "@mui/joy/Button";
 import { ChangeEvent, useEffect, useState } from "react";
 import { cleanText, timeToSeconds, truncateTitle } from "../utils/utils";
@@ -308,23 +306,6 @@ function HomePage() {
     }
     subtitleStart(updatedSubs);
   };
-
-  // const GradientButton = styled(Button)(({}) => ({
-  //   width: "90%",
-  //   background: fileName
-  //     ? "linear-gradient(90deg, rgba(0,0,0,1) 10%, rgba(0,151,185,1) 100%)"
-  //     : "rgba(0,0,0,1)",
-  //   border: 0,
-  //   borderRadius: 12,
-  //   color: "white",
-  //   height: 45,
-  //   "&:hover": {
-  //     backgroundColor: "rgba(0,0,0,1)",
-  //   },
-  //   ":disabled": {
-  //     backgroundColor: "rgba(0,0,0,1)",
-  //   },
-  // }));
 
   if (isLoading) {
     return (
