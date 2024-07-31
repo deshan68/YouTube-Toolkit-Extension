@@ -1,0 +1,6 @@
+#root {
+  width: 350px;
+  height: 600px;
+  overflow: scroll;
+  background-color: #111111;
+}

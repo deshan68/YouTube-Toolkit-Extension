@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Minimal Vite Manifest",
+  "version": "1.0.0",
+  "description": "A basic example extension with only required keys",
+  "icons": {
+    "48": "icon.png"
+  },
+  "action": { "default_popup": "index.html" },
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": ["https://www.youtube.com/*"]
+}
