@@ -1,30 +1,65 @@
-# React + TypeScript + Vite
+# Subtitle Syncer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+YouTube SubSync is a web extension that allows users to add and sync their .srt subtitle files while watching YouTube videos. Enhance your YouTube viewing experience by seamlessly integrating custom subtitles with precise timing.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Add .srt subtitle files to YouTube videos.
+- Sync subtitle timing to match the video.
+- Easy-to-use interface for adjusting subtitle timing.
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/yourusername/YouTube-SubSync.git
+    ```
+2. Navigate to the project directory:
+    ```sh
+    cd YouTube-SubSync
+    ```
+3. Install the necessary dependencies:
+    ```sh
+    npm install
+    ```
 
-- Configure the top-level `parserOptions` property like this:
+## Usage
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+1. Load the extension in your browser:
+    - Open your browser's extensions page (usually found in the settings menu).
+    - Enable "Developer mode".
+    - Click "Load unpacked" and select the `YouTube-SubSync` directory.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+2. Open a YouTube video and click on the YouTube SubSync extension icon.
+
+3. Upload your .srt subtitle file.
+
+4. Adjust the subtitle timing if needed using the provided controls.
+
+## Contributing
+
+Contributions are welcome! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Open a pull request.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Inspiration from various subtitle syncing tools and YouTube enhancements.
+- Thanks to the open-source community for their invaluable contributions.
+
+## Contact
+
+If you have any questions or feedback, feel free to contact me at [arundeshan@gmail.com].
+
+---
+
+**Enjoy seamless subtitle syncing with Subtitle Syncer!**
