@@ -8,7 +8,12 @@ import {
 } from "@mui/joy";
 import Button from "@mui/joy/Button";
 import { ChangeEvent, useEffect, useState } from "react";
-import { cleanText, timeToSeconds, truncateTitle } from "../utils/utils";
+import {
+  checkUrl,
+  cleanText,
+  timeToSeconds,
+  truncateTitle,
+} from "../utils/utils";
 import { instructions } from "../constants/constants";
 import { VideoDetails } from "../utils/types";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -165,34 +170,26 @@ function HomePage() {
   };
 
   useEffect(() => {
-    checkYoutubeUrl();
+    fetchInitialData();
   }, []);
 
-  const checkYoutubeUrl = async () => {
+  const fetchInitialData = async () => {
     try {
       let [tab] = await chrome.tabs.query({ active: true });
+      if (!checkUrl(tab.url || "")) {
+        setIsError(true);
+        return;
+      }
+
       await Promise.all([
         new Promise<VideoDetails>(() => {
-          chrome.scripting.executeScript<string[], void>({
+          chrome.scripting.executeScript({
             target: { tabId: tab.id! },
-            args: [tab.url!],
-            func: (url = tab.url!) => {
-              function checkYouTubePage(url: string): boolean {
-                return (
-                  (url?.includes("youtube.com/watch") && url.includes("v=")) ||
-                  false
-                );
-              }
+            func: () => {
               const videoId = new URLSearchParams(window.location.search).get(
                 "v"
               );
-              if (!checkYouTubePage(url) || !videoId) {
-                chrome.runtime.sendMessage({
-                  error: "No active tab found or invalid URL",
-                });
-              } else {
-                chrome.runtime.sendMessage({ videoId });
-              }
+              chrome.runtime.sendMessage({ videoId });
             },
           });
         }),
@@ -251,9 +248,8 @@ function HomePage() {
   const removeSubtitleElements = async () => {
     let [tab] = await chrome.tabs.query({ active: true });
 
-    chrome.scripting.executeScript<string[], void>({
+    chrome.scripting.executeScript({
       target: { tabId: tab.id! },
-      args: [],
       func: () => {
         let timeUpdateListener: (() => void) | null = null;
         const youTubePlayer = document.querySelector("video");
@@ -328,6 +324,7 @@ function HomePage() {
       </Box>
     );
   }
+  
   if (isError) {
     return (
       <Container
