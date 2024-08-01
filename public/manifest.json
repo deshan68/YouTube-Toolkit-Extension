@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Subtitle Syncer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A web extension that allows users to add and sync .srt subtitle files while watching YouTube videos.",
   "icons": {
     "16": "icon-16.png",
@@ -9,6 +9,6 @@
     "128": "icon-128.png"
   },
   "action": { "default_popup": "index.html" },
-  "host_permissions": ["https://www.youtube.com/*"],
-  "permissions": ["activeTab", "scripting"]
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://www.youtube.com/*"]
 }
