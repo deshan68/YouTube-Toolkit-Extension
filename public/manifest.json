@@ -1,12 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Minimal Vite Manifest",
-  "version": "1.0.0",
-  "description": "A basic example extension with only required keys",
+  "name": "Subtitle Syncer",
+  "version": "1.0.2",
+  "description": "A web extension that allows users to add and sync .srt subtitle files while watching YouTube videos.",
   "icons": {
-    "48": "icon.png"
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
   },
   "action": { "default_popup": "index.html" },
-  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://www.youtube.com/*"]
 }

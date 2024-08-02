@@ -18,7 +18,8 @@ const TimeShifter = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    if (/^\d*$/.test(newValue)) {
+    const numberRegex = /^-?\d*\.?\d+$/;
+    if (numberRegex.test(newValue)) {
       setAsyncVal(Number(newValue));
     }
   };

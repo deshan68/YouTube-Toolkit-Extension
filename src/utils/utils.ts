@@ -28,3 +28,10 @@ export const truncateTitle = (title: string, maxTitleLength: number) => {
   }
   return `${title.substring(0, maxTitleLength)}...`;
 };
+
+export const checkUrl = (url: string): boolean => {
+  if (!(url.includes("youtube.com/watch") && url.includes("v="))) {
+    return false;
+  }
+  return true;
+};
