@@ -1,3 +1,4 @@
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -7,7 +8,6 @@ import {
   Typography,
 } from "@mui/joy";
 import Button from "@mui/joy/Button";
-import { ChangeEvent, useEffect, useState } from "react";
 import {
   checkUrl,
   cleanText,
@@ -15,7 +15,7 @@ import {
   truncateTitle,
 } from "../utils/utils";
 import { instructions } from "../constants/constants";
-import { VideoDetails } from "../utils/types";
+import { Subtitle, SubtitleSyncRecordType, VideoDetails } from "../utils/types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DoneIcon from "@mui/icons-material/Done";
 import VideoCard from "./VideoCard";
@@ -24,27 +24,17 @@ import svg from "../assets/dreamer.svg";
 import GradientButton from "./buttton/GradientButton";
 import { FadedDivider } from "./FadedDivider";
 
-interface Subtitle {
-  start: number;
-  end: number;
-  text: string;
-}
-interface SubtitleSyncRecordType {
-  subtitleResyncTime: number;
-  syncedSubtitles: Subtitle[];
-  fileName: string;
-}
-
 function HomePage() {
   const [fileName, setFileName] = useState<string>("");
   const [videoDetails, setVideoDetails] = useState<VideoDetails | null>(null);
   const [syncedSubtitles, setSyncedSubtitles] = useState<Subtitle[]>([]);
   const [currentUrlId, setCurrentUrlId] = useState<string>("");
   const [resyncTime, setResyncTime] = useState<number>(0);
+  const [isSubtitlesOn, setIsSubtitlesOn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
 
-  const subtitleStart = async (updatedSubs?: Subtitle[]) => {
+  const subtitleStart = async (updatedSubs?: Subtitle[]): Promise<void> => {
     try {
       let [tab] = await chrome.tabs.query({ active: true });
       chrome.scripting.executeScript<string[], void>({
@@ -82,6 +72,8 @@ function HomePage() {
           subTitleElement.style.left = "50%";
           subTitleElement.style.transform = "translateX(-50%)";
           subTitleElement.style.zIndex = "1000";
+          subTitleElement.style.display = "flex";
+          subTitleElement.style.textAlign = "center";
           player.appendChild(subTitleElement);
 
           youTubePlayer.play();
@@ -116,6 +108,19 @@ function HomePage() {
           youTubePlayer.addEventListener("timeupdate", timeUpdateListener);
         },
       });
+      const storedSubtitles = localStorage.getItem(currentUrlId);
+      if (storedSubtitles) {
+        const SubtitleSyncRecord: SubtitleSyncRecordType =
+          JSON.parse(storedSubtitles);
+        localStorage.setItem(
+          currentUrlId,
+          JSON.stringify({
+            ...SubtitleSyncRecord,
+            isSubtitlesOn: true,
+          })
+        );
+      }
+      setIsSubtitlesOn(true);
     } catch (error) {
       console.error("Error executing script:", error);
     }
@@ -155,6 +160,7 @@ function HomePage() {
       subtitleResyncTime: 0,
       syncedSubtitles: subtitleArray,
       fileName,
+      isSubtitlesOn: false,
     };
     localStorage.setItem(currentUrlId, JSON.stringify(SubtitleSyncRecord));
     setSyncedSubtitles(subtitleArray);
@@ -180,7 +186,7 @@ function HomePage() {
     fetchInitialData();
   }, []);
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = async (): Promise<void> => {
     try {
       let [tab] = await chrome.tabs.query({ active: true });
       if (!checkUrl(tab.url || "")) {
@@ -241,18 +247,20 @@ function HomePage() {
       setSyncedSubtitles(SubtitleSyncRecord.syncedSubtitles);
       setResyncTime(SubtitleSyncRecord.subtitleResyncTime);
       setFileName(SubtitleSyncRecord.fileName);
+      setIsSubtitlesOn(SubtitleSyncRecord.isSubtitlesOn);
     }
   };
 
-  const removeSubtitleFileFormLocalStorage = () => {
+  const removeSubtitleFileFormLocalStorage = (): void => {
     localStorage.removeItem(currentUrlId);
     setFileName("");
     setSyncedSubtitles([]);
     setResyncTime(0);
     removeSubtitleElements();
+    setIsSubtitlesOn(false);
   };
 
-  const removeSubtitleElements = async () => {
+  const removeSubtitleElements = async (): Promise<void> => {
     let [tab] = await chrome.tabs.query({ active: true });
 
     chrome.scripting.executeScript({
@@ -276,7 +284,7 @@ function HomePage() {
     });
   };
 
-  const handleResyncSubtitles = (newValue: number) => {
+  const handleResyncSubtitles = (newValue: number): void => {
     let tempResyncTime = 0;
 
     setResyncTime((prev) => {
@@ -304,6 +312,7 @@ function HomePage() {
           ...SubtitleSyncRecord,
           syncedSubtitles: updatedSubs,
           subtitleResyncTime: newValue / 1000,
+          isSubtitlesOn: true,
         })
       );
     }
@@ -390,6 +399,11 @@ function HomePage() {
         <VideoCard
           videoDetails={videoDetails}
           isSubtitlesFoundFromLocal={syncedSubtitles.length > 0}
+          removeSubtitleElements={removeSubtitleElements}
+          subtitleStart={subtitleStart}
+          isSubtitlesOn={isSubtitlesOn}
+          setIsSubtitlesOn={setIsSubtitlesOn}
+          currentUrlId={currentUrlId}
         />
       )}
 
