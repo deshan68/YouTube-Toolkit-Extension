@@ -6,7 +6,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/joy";
-import { SubtitleSyncRecordType, VideoDetails } from "../utils/types";
+import { VideoDetails } from "../utils/types";
 import { truncateTitle } from "../utils/utils";
 import defaultCover from "../assets/default.png";
 import ClosedCaptionOffIcon from "@mui/icons-material/ClosedCaptionOff";
@@ -19,7 +19,6 @@ interface VideoDetailsProps {
   subtitleStart: () => void;
   isSubtitlesOn: boolean;
   setIsSubtitlesOn: (isSubtitlesOn: boolean) => void;
-  currentUrlId: string;
 }
 
 const VideoCard = ({
@@ -27,24 +26,11 @@ const VideoCard = ({
   removeSubtitleElements,
   subtitleStart,
   isSubtitlesOn,
+  isSubtitlesFoundFromLocal,
   setIsSubtitlesOn,
-  currentUrlId,
 }: VideoDetailsProps) => {
   const handleSubtitleShow = () => {
     isSubtitlesOn ? removeSubtitleElements() : subtitleStart();
-
-    const storedSubtitles = localStorage.getItem(currentUrlId);
-    if (storedSubtitles) {
-      const SubtitleSyncRecord: SubtitleSyncRecordType =
-        JSON.parse(storedSubtitles);
-      localStorage.setItem(
-        currentUrlId,
-        JSON.stringify({
-          ...SubtitleSyncRecord,
-          isSubtitlesOn: !isSubtitlesOn,
-        })
-      );
-    }
     setIsSubtitlesOn(!isSubtitlesOn);
   };
 
@@ -76,6 +62,7 @@ const VideoCard = ({
       >
         <Box sx={{ display: "flex", justifyContent: "end" }}>
           <IconButton
+            disabled={!isSubtitlesFoundFromLocal}
             onClick={handleSubtitleShow}
             size="sm"
             variant="solid"
@@ -84,6 +71,9 @@ const VideoCard = ({
               bgcolor: "rgba(0 0 0 / 0.4)",
               "&:hover, &:focus-within": {
                 bgcolor: "rgba(0 0 0 / 0.4)",
+              },
+              "&:disabled": {
+                bgcolor: "rgba(0 0 0 / 0.1)",
               },
             }}
           >

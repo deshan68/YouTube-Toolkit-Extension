@@ -14,5 +14,4 @@ export interface SubtitleSyncRecordType {
   subtitleResyncTime: number;
   syncedSubtitles: Subtitle[];
   fileName: string;
-  isSubtitlesOn: boolean;
 }

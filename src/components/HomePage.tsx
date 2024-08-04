@@ -93,6 +93,7 @@ function HomePage() {
                 "timeupdate",
                 timeUpdateListener
               );
+              chrome.runtime.sendMessage({ isSubtitlesOn: false });
               return;
             }
             const currentTime = youTubePlayer.currentTime;
@@ -116,7 +117,6 @@ function HomePage() {
           currentUrlId,
           JSON.stringify({
             ...SubtitleSyncRecord,
-            isSubtitlesOn: true,
           })
         );
       }
@@ -134,6 +134,8 @@ function HomePage() {
     if (message.error !== undefined) {
       setIsError(true);
     }
+    if (message.isSubtitlesOn === false) setIsSubtitlesOn(false);
+    if (message.isSubtitlesOn === true) setIsSubtitlesOn(true);
   });
 
   const convertSrtToArray = (srtContent: string, fileName: string): void => {
@@ -160,7 +162,6 @@ function HomePage() {
       subtitleResyncTime: 0,
       syncedSubtitles: subtitleArray,
       fileName,
-      isSubtitlesOn: false,
     };
     localStorage.setItem(currentUrlId, JSON.stringify(SubtitleSyncRecord));
     setSyncedSubtitles(subtitleArray);
@@ -203,6 +204,12 @@ function HomePage() {
                 "v"
               );
               chrome.runtime.sendMessage({ videoId });
+              const subTitleElement = document.querySelector(".sub-title-div");
+              if (!subTitleElement) {
+                chrome.runtime.sendMessage({ isSubtitlesOn: false });
+              } else {
+                chrome.runtime.sendMessage({ isSubtitlesOn: true });
+              }
             },
           });
         }),
@@ -247,7 +254,6 @@ function HomePage() {
       setSyncedSubtitles(SubtitleSyncRecord.syncedSubtitles);
       setResyncTime(SubtitleSyncRecord.subtitleResyncTime);
       setFileName(SubtitleSyncRecord.fileName);
-      setIsSubtitlesOn(SubtitleSyncRecord.isSubtitlesOn);
     }
   };
 
@@ -261,27 +267,31 @@ function HomePage() {
   };
 
   const removeSubtitleElements = async (): Promise<void> => {
-    let [tab] = await chrome.tabs.query({ active: true });
+    try {
+      let [tab] = await chrome.tabs.query({ active: true });
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id! },
+        func: () => {
+          let timeUpdateListener: (() => void) | null = null;
+          const youTubePlayer = document.querySelector("video");
 
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id! },
-      func: () => {
-        let timeUpdateListener: (() => void) | null = null;
-        const youTubePlayer = document.querySelector("video");
+          const removeSubtitleElements = () => {
+            const subTitleElement = document.querySelector(".sub-title-div");
+            if (subTitleElement) subTitleElement.remove();
+          };
 
-        const removeSubtitleElements = () => {
-          const subTitleElement = document.querySelector(".sub-title-div");
-          if (subTitleElement) subTitleElement.remove();
-        };
+          // Remove existing subtitle elements
+          removeSubtitleElements();
 
-        // Remove existing subtitle elements
-        removeSubtitleElements();
-
-        if (timeUpdateListener && youTubePlayer) {
-          youTubePlayer.removeEventListener("timeupdate", timeUpdateListener);
-        }
-      },
-    });
+          if (timeUpdateListener && youTubePlayer) {
+            youTubePlayer.removeEventListener("timeupdate", timeUpdateListener);
+          }
+        },
+      });
+      setIsSubtitlesOn(false);
+    } catch (error) {
+      console.error("Error removing subtitle element:", error);
+    }
   };
 
   const handleResyncSubtitles = (newValue: number): void => {
@@ -312,7 +322,6 @@ function HomePage() {
           ...SubtitleSyncRecord,
           syncedSubtitles: updatedSubs,
           subtitleResyncTime: newValue / 1000,
-          isSubtitlesOn: true,
         })
       );
     }
@@ -403,7 +412,6 @@ function HomePage() {
           subtitleStart={subtitleStart}
           isSubtitlesOn={isSubtitlesOn}
           setIsSubtitlesOn={setIsSubtitlesOn}
-          currentUrlId={currentUrlId}
         />
       )}
 
