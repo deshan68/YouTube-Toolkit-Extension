@@ -6,14 +6,18 @@ import {
   IconButton,
   Typography,
 } from "@mui/joy";
-import { VideoDetails } from "../utils/types";
+import { SavedItemDetails, VideoDetails } from "../utils/types";
 import { truncateTitle } from "../utils/utils";
 import defaultCover from "../assets/default.png";
 import ClosedCaptionOffIcon from "@mui/icons-material/ClosedCaptionOff";
 import ClosedCaptionIcon from "@mui/icons-material/ClosedCaption";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import { useEffect, useState } from "react";
 
 interface VideoDetailsProps {
   videoDetails: VideoDetails;
+  currentUrlId: string;
   isSubtitlesFoundFromLocal: boolean;
   removeSubtitleElements: () => void;
   subtitleStart: () => void;
@@ -23,16 +27,63 @@ interface VideoDetailsProps {
 
 const VideoCard = ({
   videoDetails,
+  currentUrlId,
   removeSubtitleElements,
   subtitleStart,
   isSubtitlesOn,
   isSubtitlesFoundFromLocal,
   setIsSubtitlesOn,
 }: VideoDetailsProps) => {
+  const [isSaved, setIsSaved] = useState<boolean>(false);
   const handleSubtitleShow = () => {
     isSubtitlesOn ? removeSubtitleElements() : subtitleStart();
     setIsSubtitlesOn(!isSubtitlesOn);
   };
+
+  const handleVideoSave = async () => {
+    const savedList = localStorage.getItem("savedList");
+
+    if (!savedList) localStorage.setItem("savedList", JSON.stringify([]));
+
+    if (savedList) {
+      const _savedList: SavedItemDetails[] = JSON.parse(savedList);
+
+      const currentVideo: SavedItemDetails = {
+        videoId: currentUrlId,
+        videoUrl: videoDetails.videoUrl,
+        thumbnailUrl: videoDetails.thumbnailUrl,
+        videoTitle: videoDetails.title,
+        videoAuthorName: videoDetails.authorName,
+      };
+      const videoIndex = _savedList.findIndex(
+        (video) => video.videoId === currentVideo.videoId
+      );
+
+      if (videoIndex !== -1) {
+        _savedList.splice(videoIndex, 1);
+      } else {
+        _savedList.push(currentVideo);
+      }
+
+      localStorage.setItem("savedList", JSON.stringify(_savedList));
+      checkIsVideoSaved();
+    }
+  };
+
+  const checkIsVideoSaved = (): void => {
+    const savedList = localStorage.getItem("savedList");
+    if (savedList) {
+      const _savedList: SavedItemDetails[] = JSON.parse(savedList);
+      const videoExists = _savedList.some(
+        (video) => video.videoId === currentUrlId
+      );
+      setIsSaved(videoExists);
+    }
+  };
+
+  useEffect(() => {
+    checkIsVideoSaved();
+  }, []);
 
   return (
     <Card
@@ -61,28 +112,59 @@ const VideoCard = ({
         sx={{ justifyContent: "space-between", height: "100%", m: 2 }}
       >
         <Box sx={{ display: "flex", justifyContent: "end" }}>
-          <IconButton
-            disabled={!isSubtitlesFoundFromLocal}
-            onClick={handleSubtitleShow}
-            size="sm"
-            variant="solid"
-            color="neutral"
+          <Box
             sx={{
-              bgcolor: "rgba(0 0 0 / 0.4)",
-              "&:hover, &:focus-within": {
-                bgcolor: "rgba(0 0 0 / 0.4)",
-              },
-              "&:disabled": {
-                bgcolor: "rgba(0 0 0 / 0.1)",
-              },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1,
             }}
           >
-            {isSubtitlesOn ? (
-              <ClosedCaptionIcon fontSize="medium" />
-            ) : (
-              <ClosedCaptionOffIcon fontSize="medium" />
-            )}
-          </IconButton>
+            <IconButton
+              disabled={!isSubtitlesFoundFromLocal}
+              onClick={handleSubtitleShow}
+              size="sm"
+              variant="solid"
+              color="neutral"
+              sx={{
+                bgcolor: "rgba(0 0 0 / 0.4)",
+                "&:hover, &:focus-within": {
+                  bgcolor: "rgba(0 0 0 / 0.4)",
+                },
+                "&:disabled": {
+                  bgcolor: "rgba(0 0 0 / 0.1)",
+                },
+              }}
+            >
+              {isSubtitlesOn ? (
+                <ClosedCaptionIcon fontSize="medium" />
+              ) : (
+                <ClosedCaptionOffIcon fontSize="medium" />
+              )}
+            </IconButton>
+            <IconButton
+              onClick={handleVideoSave}
+              size="sm"
+              variant="solid"
+              color="neutral"
+              sx={{
+                bgcolor: "rgba(0 0 0 / 0.4)",
+                "&:hover, &:focus-within": {
+                  bgcolor: "rgba(0 0 0 / 0.4)",
+                },
+                "&:disabled": {
+                  bgcolor: "rgba(0 0 0 / 0.1)",
+                },
+                paddingTop: "2px",
+              }}
+            >
+              {isSaved ? (
+                <BookmarkIcon fontSize="medium" />
+              ) : (
+                <BookmarkBorderIcon fontSize="medium" />
+              )}
+            </IconButton>
+          </Box>
         </Box>
         <Box>
           <Typography level="title-lg" textColor="#fff">

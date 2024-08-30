@@ -2,7 +2,7 @@ import "./App.css";
 import { Box, CssBaseline, Typography } from "@mui/joy";
 import { AppBar, Toolbar } from "@mui/material";
 import SubtitlesIcon from "@mui/icons-material/Subtitles";
-import HomePage from "./components/HomePage";
+import BottomNavComponent from "./components/BottomNavComponent";
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
               fontWeight: "200",
             }}
           >
-            Youtube Subtitle Manager | V1.0.4
+            Youtube Subtitle Manager | V1.0.5
           </Typography>
         </Toolbar>
       </AppBar>
@@ -46,7 +46,7 @@ function App() {
         }}
       >
         <Toolbar />
-        <HomePage />
+        <BottomNavComponent />
       </Box>
     </Box>
   );
