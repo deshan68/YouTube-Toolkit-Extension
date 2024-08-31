@@ -1,7 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import { AspectRatio, Box, Card, CardContent, Typography } from "@mui/joy";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { SavedItemDetails } from "../utils/types";
 import { useEffect, useState } from "react";
 import { truncateTitle } from "../utils/utils";
@@ -50,6 +50,25 @@ const SavedVideos = () => {
     checkIsVideoSaved();
   }, []);
 
+  if (savedList.length === 0) {
+    return (
+      <Box
+        sx={{
+          pt: 6,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          fontStyle: "italic",
+        }}
+      >
+        <Typography level="body-sm" textColor="#989898">
+          No saved videos
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -87,21 +106,37 @@ const SavedVideos = () => {
             }}
           >
             <Box>
-              <Typography level="title-sm" textColor="#fff">
-                {truncateTitle(item.videoTitle || "", 15)}
+              <Typography level="body-xs" textColor="#fff">
+                {truncateTitle(item.videoTitle || "", 20)}
               </Typography>
-              <Typography level="body-xs" textColor="#989898" mb={1}>
+              <Typography level="body-xs" textColor="#989898">
                 {truncateTitle(item.videoAuthorName || "", 20)}
               </Typography>
-              <Button
-                variant="contained"
-                size="small"
-                color="inherit"
-                startIcon={<PlayCircleIcon fontSize="small" />}
+              <Box
                 onClick={() => clickVideo(item.videoUrl || "")}
+                sx={{
+                  cursor: "pointer",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  columnGap: 0.5,
+                  borderRadius: 3,
+                  bgcolor: "#00D0FF",
+                  py: 0.4,
+                  px: 1,
+                  width: "fit-content",
+                }}
               >
-                Play
-              </Button>
+                <PlayCircleIcon
+                  fontSize="small"
+                  sx={{
+                    color: "#fff",
+                  }}
+                />
+                <Typography level="body-xs" textColor="#fff">
+                  Play
+                </Typography>
+              </Box>
             </Box>
             <Box>
               <IconButton

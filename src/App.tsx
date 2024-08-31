@@ -34,7 +34,7 @@ function App() {
               fontWeight: "200",
             }}
           >
-            Youtube Subtitle Manager | V1.0.5
+            Youtube Subtitle Manager | V1.0.6
           </Typography>
         </Toolbar>
       </AppBar>
