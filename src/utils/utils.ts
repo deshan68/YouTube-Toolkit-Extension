@@ -1,3 +1,5 @@
+import { StyleSetting } from "./types";
+
 export const valueText = (value: number): string => {
   return `${value} sec`;
 };
@@ -35,3 +37,28 @@ export const checkUrl = (url: string): boolean => {
   }
   return true;
 };
+
+export const getStoredStyleSetting = (): StyleSetting => {
+  const storedStyleSetting = localStorage.getItem("styleSetting");
+  if (storedStyleSetting) {
+    const _storedStyleSetting: StyleSetting = JSON.parse(storedStyleSetting);
+    return _storedStyleSetting;
+  }
+  return {
+    fontSize: "18px",
+    fontColor: "#ffff",
+    backgroundOpacity: "0.2",
+  };
+};
+
+export const getFontSizeHandlerButton = (buttonColor: string) => ({
+  width: "100px",
+  height: "45px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  bgcolor: buttonColor,
+  "&:hover": {
+    bgcolor: "#333333",
+  },
+});

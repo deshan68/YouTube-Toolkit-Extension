@@ -11,11 +11,17 @@ import Button from "@mui/joy/Button";
 import {
   checkUrl,
   cleanText,
+  getStoredStyleSetting,
   timeToSeconds,
   truncateTitle,
 } from "../utils/utils";
 import { instructions } from "../constants/constants";
-import { Subtitle, SubtitleSyncRecordType, VideoDetails } from "../utils/types";
+import {
+  StyleSetting,
+  Subtitle,
+  SubtitleSyncRecordType,
+  VideoDetails,
+} from "../utils/types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DoneIcon from "@mui/icons-material/Done";
 import VideoCard from "./VideoCard";
@@ -33,14 +39,20 @@ function HomePage() {
   const [isSubtitlesOn, setIsSubtitlesOn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
+  const [styleSetting, setStyleSetting] = useState<StyleSetting | null>(null);
 
   const subtitleStart = async (updatedSubs?: Subtitle[]): Promise<void> => {
     try {
       let [tab] = await chrome.tabs.query({ active: true });
       chrome.scripting.executeScript<string[], void>({
         target: { tabId: tab.id! },
-        args: [currentUrlId, JSON.stringify(updatedSubs || syncedSubtitles)],
-        func: (currentUrlId, serializedSubtitles: string) => {
+        args: [
+          currentUrlId,
+          JSON.stringify(updatedSubs || syncedSubtitles),
+          JSON.stringify(styleSetting),
+        ],
+        func: (currentUrlId, serializedSubtitles: string, styleSetting) => {
+          const _styleSetting: StyleSetting = JSON.parse(styleSetting);
           let timeUpdateListener: (() => void) | null = null;
           const subtitles: Subtitle[] = JSON.parse(serializedSubtitles);
 
@@ -64,8 +76,9 @@ function HomePage() {
 
           const subTitleElement = document.createElement("div");
           subTitleElement.className = "sub-title-div";
-          subTitleElement.style.color = "white";
-          subTitleElement.style.fontSize = "30px";
+          subTitleElement.style.color = _styleSetting.fontColor;
+          subTitleElement.style.fontSize = _styleSetting.fontSize;
+          subTitleElement.style.backgroundColor = `rgba(0, 0, 0, ${_styleSetting.backgroundOpacity})`;
           subTitleElement.style.fontWeight = "bold";
           subTitleElement.style.position = "absolute";
           subTitleElement.style.bottom = "60px";
@@ -93,6 +106,7 @@ function HomePage() {
                 "timeupdate",
                 timeUpdateListener
               );
+              chrome.runtime.sendMessage({ isSubtitlesOn: false });
               return;
             }
             const currentTime = youTubePlayer.currentTime;
@@ -116,7 +130,6 @@ function HomePage() {
           currentUrlId,
           JSON.stringify({
             ...SubtitleSyncRecord,
-            isSubtitlesOn: true,
           })
         );
       }
@@ -134,6 +147,8 @@ function HomePage() {
     if (message.error !== undefined) {
       setIsError(true);
     }
+    if (message.isSubtitlesOn === false) setIsSubtitlesOn(false);
+    if (message.isSubtitlesOn === true) setIsSubtitlesOn(true);
   });
 
   const convertSrtToArray = (srtContent: string, fileName: string): void => {
@@ -160,7 +175,7 @@ function HomePage() {
       subtitleResyncTime: 0,
       syncedSubtitles: subtitleArray,
       fileName,
-      isSubtitlesOn: false,
+      isVideoSave: false,
     };
     localStorage.setItem(currentUrlId, JSON.stringify(SubtitleSyncRecord));
     setSyncedSubtitles(subtitleArray);
@@ -184,6 +199,7 @@ function HomePage() {
 
   useEffect(() => {
     fetchInitialData();
+    setStyleSetting(getStoredStyleSetting());
   }, []);
 
   const fetchInitialData = async (): Promise<void> => {
@@ -203,6 +219,12 @@ function HomePage() {
                 "v"
               );
               chrome.runtime.sendMessage({ videoId });
+              const subTitleElement = document.querySelector(".sub-title-div");
+              if (!subTitleElement) {
+                chrome.runtime.sendMessage({ isSubtitlesOn: false });
+              } else {
+                chrome.runtime.sendMessage({ isSubtitlesOn: true });
+              }
             },
           });
         }),
@@ -230,6 +252,7 @@ function HomePage() {
         title: data.title,
         thumbnailUrl: data.thumbnail_url,
         authorName: data.author_name,
+        videoUrl: url,
       };
       setVideoDetails(videoInfo);
       setIsLoading(false);
@@ -247,7 +270,6 @@ function HomePage() {
       setSyncedSubtitles(SubtitleSyncRecord.syncedSubtitles);
       setResyncTime(SubtitleSyncRecord.subtitleResyncTime);
       setFileName(SubtitleSyncRecord.fileName);
-      setIsSubtitlesOn(SubtitleSyncRecord.isSubtitlesOn);
     }
   };
 
@@ -261,27 +283,31 @@ function HomePage() {
   };
 
   const removeSubtitleElements = async (): Promise<void> => {
-    let [tab] = await chrome.tabs.query({ active: true });
+    try {
+      let [tab] = await chrome.tabs.query({ active: true });
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id! },
+        func: () => {
+          let timeUpdateListener: (() => void) | null = null;
+          const youTubePlayer = document.querySelector("video");
 
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id! },
-      func: () => {
-        let timeUpdateListener: (() => void) | null = null;
-        const youTubePlayer = document.querySelector("video");
+          const removeSubtitleElements = () => {
+            const subTitleElement = document.querySelector(".sub-title-div");
+            if (subTitleElement) subTitleElement.remove();
+          };
 
-        const removeSubtitleElements = () => {
-          const subTitleElement = document.querySelector(".sub-title-div");
-          if (subTitleElement) subTitleElement.remove();
-        };
+          // Remove existing subtitle elements
+          removeSubtitleElements();
 
-        // Remove existing subtitle elements
-        removeSubtitleElements();
-
-        if (timeUpdateListener && youTubePlayer) {
-          youTubePlayer.removeEventListener("timeupdate", timeUpdateListener);
-        }
-      },
-    });
+          if (timeUpdateListener && youTubePlayer) {
+            youTubePlayer.removeEventListener("timeupdate", timeUpdateListener);
+          }
+        },
+      });
+      setIsSubtitlesOn(false);
+    } catch (error) {
+      console.error("Error removing subtitle element:", error);
+    }
   };
 
   const handleResyncSubtitles = (newValue: number): void => {
@@ -312,7 +338,6 @@ function HomePage() {
           ...SubtitleSyncRecord,
           syncedSubtitles: updatedSubs,
           subtitleResyncTime: newValue / 1000,
-          isSubtitlesOn: true,
         })
       );
     }
@@ -346,7 +371,7 @@ function HomePage() {
       <Container
         sx={{
           width: "100%",
-          height: "525px",
+          height: "485px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -398,12 +423,12 @@ function HomePage() {
       {videoDetails && (
         <VideoCard
           videoDetails={videoDetails}
+          currentUrlId={currentUrlId}
           isSubtitlesFoundFromLocal={syncedSubtitles.length > 0}
           removeSubtitleElements={removeSubtitleElements}
           subtitleStart={subtitleStart}
           isSubtitlesOn={isSubtitlesOn}
           setIsSubtitlesOn={setIsSubtitlesOn}
-          currentUrlId={currentUrlId}
         />
       )}
 
