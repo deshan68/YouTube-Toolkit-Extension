@@ -1,7 +1,7 @@
 # Subtitle Syncer
 YouTube SubSync is a web extension that allows users to add and sync their .srt subtitle files while watching YouTube videos. Enhance your YouTube viewing experience by seamlessly integrating custom subtitles with precise timing.
 
-![2](https://github.com/user-attachments/assets/cfa4ce6b-3afa-4096-b7fb-6f7ae1f5f79c)
+![web extension assets -2](https://github.com/user-attachments/assets/da4f163c-8035-4a10-b7db-ef3356ef623d)
 
 ## Features
 
