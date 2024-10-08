@@ -1,3 +1,4 @@
+import { getStorage } from "../../../shared/chrome-utils";
 import { StyleSetting } from "./types";
 
 export const valueText = (value: number): string => {
@@ -28,7 +29,7 @@ export const truncateTitle = (title: string, maxTitleLength: number) => {
   if (title.length <= maxTitleLength) {
     return title;
   }
-  return `${title.substring(0, maxTitleLength)}...`;
+  return `${title.substring(0, maxTitleLength)}`;
 };
 
 export const checkUrl = (url: string): boolean => {
@@ -38,12 +39,10 @@ export const checkUrl = (url: string): boolean => {
   return true;
 };
 
-export const getStoredStyleSetting = (): StyleSetting => {
-  const storedStyleSetting = localStorage.getItem("styleSetting");
-  if (storedStyleSetting) {
-    const _storedStyleSetting: StyleSetting = JSON.parse(storedStyleSetting);
-    return _storedStyleSetting;
-  }
+export const getStoredStyleSetting = async (): Promise<StyleSetting> => {
+  const storedStyleSetting = await getStorage<StyleSetting>("styleSetting");
+
+  if (storedStyleSetting) return storedStyleSetting;
   return {
     fontSize: "18px",
     fontColor: "#ffff",

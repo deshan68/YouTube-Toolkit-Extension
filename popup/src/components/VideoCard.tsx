@@ -14,12 +14,17 @@ import ClosedCaptionIcon from "@mui/icons-material/ClosedCaption";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { useEffect, useState } from "react";
+import {
+  getStorage,
+  sendMessageToContent,
+  setStorage,
+} from "../../../shared/chrome-utils";
+import { MessageTypes } from "../../../shared/types";
 
 interface VideoDetailsProps {
   videoDetails: VideoDetails;
   currentUrlId: string;
   isSubtitlesFoundFromLocal: boolean;
-  removeSubtitleElements: () => void;
   subtitleStart: () => void;
   isSubtitlesOn: boolean;
   setIsSubtitlesOn: (isSubtitlesOn: boolean) => void;
@@ -28,26 +33,30 @@ interface VideoDetailsProps {
 const VideoCard = ({
   videoDetails,
   currentUrlId,
-  removeSubtitleElements,
   subtitleStart,
   isSubtitlesOn,
   isSubtitlesFoundFromLocal,
   setIsSubtitlesOn,
 }: VideoDetailsProps) => {
   const [isSaved, setIsSaved] = useState<boolean>(false);
+
+  const removeSubtitleElements = async (): Promise<void> => {
+    await sendMessageToContent<{}>({
+      type: MessageTypes.REMOVE_SUBTITLES_ELEMENT,
+    });
+  };
+
   const handleSubtitleShow = () => {
     isSubtitlesOn ? removeSubtitleElements() : subtitleStart();
     setIsSubtitlesOn(!isSubtitlesOn);
   };
 
   const handleVideoSave = async () => {
-    const savedList = localStorage.getItem("savedList");
+    const savedList = await getStorage<SavedItemDetails[]>("savedList");
 
-    if (!savedList) localStorage.setItem("savedList", JSON.stringify([]));
+    if (!savedList) await setStorage("savedList", JSON.stringify([]));
 
     if (savedList) {
-      const _savedList: SavedItemDetails[] = JSON.parse(savedList);
-
       const currentVideo: SavedItemDetails = {
         videoId: currentUrlId,
         videoUrl: videoDetails.videoUrl,
@@ -55,26 +64,26 @@ const VideoCard = ({
         videoTitle: videoDetails.title,
         videoAuthorName: videoDetails.authorName,
       };
-      const videoIndex = _savedList.findIndex(
+      const videoIndex = savedList.findIndex(
         (video) => video.videoId === currentVideo.videoId
       );
 
       if (videoIndex !== -1) {
-        _savedList.splice(videoIndex, 1);
+        savedList.splice(videoIndex, 1);
       } else {
-        _savedList.push(currentVideo);
+        savedList.push(currentVideo);
       }
 
-      localStorage.setItem("savedList", JSON.stringify(_savedList));
+      await setStorage("savedList", JSON.stringify(savedList));
       checkIsVideoSaved();
     }
   };
 
-  const checkIsVideoSaved = (): void => {
-    const savedList = localStorage.getItem("savedList");
+  const checkIsVideoSaved = async (): Promise<void> => {
+    const savedList = await getStorage<SavedItemDetails[]>("savedList");
+
     if (savedList) {
-      const _savedList: SavedItemDetails[] = JSON.parse(savedList);
-      const videoExists = _savedList.some(
+      const videoExists = savedList.some(
         (video) => video.videoId === currentUrlId
       );
       setIsSaved(videoExists);

@@ -4,3 +4,6 @@
   overflow: auto;
   background-color: #111111;
 }
+body{
+  width: "100%";
+}

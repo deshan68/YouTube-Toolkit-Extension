@@ -3,15 +3,25 @@ import { Box, Button, IconButton, Input, Typography } from "@mui/joy";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import SyncIcon from "@mui/icons-material/Sync";
+import { Subtitle, SubtitleSyncRecordType } from "../utils/types";
+import { getStorage, setStorage } from "../../../shared/chrome-utils";
 
 interface TimeShifterProps {
-  handleResyncSubtitles: (time: number) => void;
+  currentUrlId: string;
   resyncTime: number;
+  setResyncTime: (time: number) => void;
+  setSyncedSubtitles: (subtitles: Subtitle[]) => void;
+  subtitleStart: (subtitles: Subtitle[]) => void;
+  syncedSubtitles: Subtitle[];
   isSubtitlesFound: boolean;
 }
 const TimeShifter = ({
-  handleResyncSubtitles,
+  currentUrlId,
   resyncTime,
+  setResyncTime,
+  setSyncedSubtitles,
+  subtitleStart,
+  syncedSubtitles,
   isSubtitlesFound,
 }: TimeShifterProps) => {
   const [asyncVal, setAsyncVal] = useState<number>(0);
@@ -34,6 +44,35 @@ const TimeShifter = ({
 
   const handleSync = () => {
     handleResyncSubtitles(asyncVal);
+  };
+
+  const handleResyncSubtitles = async (newValue: number): Promise<void> => {
+    const _resyncTime = newValue / 1000 - resyncTime;
+    setResyncTime(newValue / 1000);
+    const updatedSubs = syncedSubtitles.map((sub) => {
+      return {
+        ...sub,
+        start: sub.start + _resyncTime,
+        end: sub.end + _resyncTime,
+      };
+    });
+    setSyncedSubtitles(updatedSubs);
+
+    const storedSubtitles = await getStorage<SubtitleSyncRecordType>(
+      currentUrlId
+    );
+
+    if (storedSubtitles) {
+      await setStorage(
+        currentUrlId,
+        JSON.stringify({
+          ...storedSubtitles,
+          syncedSubtitles: updatedSubs,
+          subtitleResyncTime: newValue / 1000,
+        })
+      );
+    }
+    subtitleStart(updatedSubs);
   };
 
   useEffect(() => {

@@ -39,6 +39,8 @@ const BottomNavComponent = () => {
             "& .Mui-selected": {
               "& .MuiBottomNavigationAction-label": {
                 color: "#00D0FF",
+                transition: "none",
+                fontSize: "10px",
               },
               "& .MuiSvgIcon-root": {
                 color: "#00D0FF",
@@ -48,23 +50,35 @@ const BottomNavComponent = () => {
         >
           <BottomNavigationAction
             label="Home"
-            icon={<HomeIcon fontSize="small" />}
+            icon={<HomeIcon sx={{ fontSize: "18px" }} />}
             sx={{
-              color: "#989898",
+              color: "#FFFFFF",
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: "10px",
+                color: "#FFFFFF",
+              },
             }}
           />
           <BottomNavigationAction
             label="Saved"
-            icon={<BookmarksIcon fontSize="small" />}
+            icon={<BookmarksIcon sx={{ fontSize: "18px" }} />}
             sx={{
-              color: "#989898",
+              color: "#FFFFFF",
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: "10px",
+                color: "#FFFFFF",
+              },
             }}
           />
           <BottomNavigationAction
             label="Style"
-            icon={<StyleIcon fontSize="small" />}
+            icon={<StyleIcon sx={{ fontSize: "18px" }} />}
             sx={{
-              color: "#989898",
+              color: "#FFFFFF",
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: "10px",
+                color: "#FFFFFF",
+              },
             }}
           />
         </BottomNavigation>

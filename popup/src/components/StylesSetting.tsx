@@ -9,20 +9,22 @@ import {
   getStoredStyleSetting,
 } from "../utils/utils";
 import CheckIcon from "@mui/icons-material/Check";
+import { setStorage } from "../../../shared/chrome-utils";
 
 const StylesSetting = () => {
   const [styleSetting, setStyleSetting] = useState<StyleSetting | null>(null);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedFontSize, setSelectedFontSize] = useState<string>("");
+  const [storedBgOpacity, setStoredBgOpacity] = useState<string>("");
 
   const valueText = (value: number): string => {
     return `${value}%`;
   };
 
-  const handleStyleChange = (setting: StyleSetting): void => {
-    const storedStyleSetting = getStoredStyleSetting();
+  const handleStyleChange = async (setting: StyleSetting): Promise<void> => {
+    const storedStyleSetting = await getStoredStyleSetting();
     if (storedStyleSetting) {
-      localStorage.setItem("styleSetting", JSON.stringify(setting));
+      await setStorage("styleSetting", JSON.stringify(setting));
       setStyleSetting(setting);
       setSelectedColor(setting.fontColor);
       setSelectedFontSize(setting.fontSize);
@@ -56,11 +58,25 @@ const StylesSetting = () => {
   };
 
   useEffect(() => {
-    setStyleSetting(getStoredStyleSetting());
-    setSelectedColor(getStoredStyleSetting().fontColor);
-    setSelectedFontSize(getStoredStyleSetting().fontSize);
+    getAllStyles();
   }, []);
 
+  const getAllStyles = async () => {
+    setStyleSetting(await getStoredStyleSetting());
+    setSelectedColor((await getStoredStyleSetting()).fontColor);
+    setSelectedFontSize((await getStoredStyleSetting()).fontSize);
+    setStoredBgOpacity((await getStoredStyleSetting()).backgroundOpacity);
+  };
+
+  if (
+    !styleSetting ||
+    !selectedColor ||
+    !selectedFontSize ||
+    !storedBgOpacity
+  ) {
+    return null;
+  }
+  
   return (
     <Box
       sx={{
@@ -200,9 +216,7 @@ const StylesSetting = () => {
           Background Opacity
         </Typography>
         <Slider
-          defaultValue={
-            Number(getStoredStyleSetting()?.backgroundOpacity) * 100
-          }
+          defaultValue={Number(storedBgOpacity) * 100}
           getAriaValueText={valueText}
           step={20}
           marks
