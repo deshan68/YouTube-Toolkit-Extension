@@ -1,0 +1,9 @@
+#root {
+  width: 350px;
+  height: 600px;
+  overflow: auto;
+  background-color: #111111;
+}
+body{
+  width: "100%";
+}
