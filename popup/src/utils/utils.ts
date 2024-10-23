@@ -1,4 +1,5 @@
 import { getStorage } from "../../../shared/chrome-utils";
+import { defaultSubtitleStyle } from "../constants/constants";
 import { StyleSetting } from "./types";
 
 export const valueText = (value: number): string => {
@@ -40,14 +41,10 @@ export const checkUrl = (url: string): boolean => {
 };
 
 export const getStoredStyleSetting = async (): Promise<StyleSetting> => {
-  const storedStyleSetting = await getStorage<StyleSetting>("styleSetting");
+  const storedStyleSetting = await getStorage<StyleSetting>("subtitleStyle");
 
   if (storedStyleSetting) return storedStyleSetting;
-  return {
-    fontSize: "18px",
-    fontColor: "#ffff",
-    backgroundOpacity: "0.2",
-  };
+  return defaultSubtitleStyle;
 };
 
 export const getFontSizeHandlerButton = (buttonColor: string) => ({

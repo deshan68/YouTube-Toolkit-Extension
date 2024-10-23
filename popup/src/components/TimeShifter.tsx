@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, IconButton, Input, Typography } from "@mui/joy";
-import RemoveIcon from "@mui/icons-material/Remove";
-import AddIcon from "@mui/icons-material/Add";
-import SyncIcon from "@mui/icons-material/Sync";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Subtitle, SubtitleSyncRecordType } from "../utils/types";
 import { getStorage, setStorage } from "../../../shared/chrome-utils";
 
@@ -58,19 +57,25 @@ const TimeShifter = ({
     });
     setSyncedSubtitles(updatedSubs);
 
-    const storedSubtitles = await getStorage<SubtitleSyncRecordType>(
-      currentUrlId
+    const _allStoredSubtitles = await getStorage<SubtitleSyncRecordType[]>(
+      "subtitle"
     );
 
-    if (storedSubtitles) {
-      await setStorage(
-        currentUrlId,
-        JSON.stringify({
-          ...storedSubtitles,
+    const updatedSubtitleList = _allStoredSubtitles?.map((i) => {
+      if (i.id === currentUrlId) {
+        return {
+          ..._allStoredSubtitles.find((i) => i.id === currentUrlId),
           syncedSubtitles: updatedSubs,
           subtitleResyncTime: newValue / 1000,
-        })
-      );
+        };
+      }
+      return i;
+    });
+
+    if (_allStoredSubtitles) {
+      await setStorage("subtitle", JSON.stringify(updatedSubtitleList));
+    } else {
+      await setStorage("subtitle", JSON.stringify([]));
     }
     subtitleStart(updatedSubs);
   };
@@ -85,107 +90,128 @@ const TimeShifter = ({
         display: "flex",
         justifyContent: "space-around",
         alignItems: "center",
-        width: "100%",
+        width: "90%",
         height: "auto",
-        py: 4,
-        background:
-          "linear-gradient(180deg, rgba(217,217,217,0.1) 10%, rgba(115,115,155,0) 100%)",
+        bgcolor: "#262626",
+        borderRadius: "20px",
+        px: 1,
+        py: 1.5,
       }}
     >
+      {/* input */}
+      <Input
+        disabled={!isSubtitlesFound}
+        value={asyncVal}
+        onChange={handleInputChange}
+        variant="plain"
+        sx={{
+          backgroundColor: "transparent",
+          width: "130px",
+          height: "55px",
+          border: "1px solid #fff",
+          borderRadius: "12px",
+          fontSize: "md",
+          "--Input-focusedThickness": "0px",
+          "& input": {
+            textAlign: "right",
+            paddingRight: "5px",
+            color: "white",
+          },
+          "&:focus-within": {
+            outline: "none",
+            border: "1px solid #fff",
+          },
+        }}
+        endDecorator={
+          <Typography
+            sx={{
+              color: "#fff",
+              fontWeight: "sm",
+              position: "absolute",
+              right: "5px",
+              fontSize: "xs",
+              pt: "5px",
+            }}
+          >
+            ms
+          </Typography>
+        }
+      />
+      {/* up and down */}
       <Box
         sx={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          columnGap: 0.5,
+          rowGap: "2px",
         }}
       >
         <IconButton
           disabled={!isSubtitlesFound}
           size="sm"
           sx={{
-            color: "#989898",
+            color: "#fff",
+            border: "1px solid #fff",
+            width: "10px",
+            height: "10px",
+            borderRadius: "100%",
             "&:hover": {
-              bgcolor: "black",
-              color: "#989898",
+              bgcolor: "#fff",
+              color: "#000",
             },
           }}
           onClick={decrementTime}
         >
-          <RemoveIcon fontSize="small" />
+          <KeyboardArrowUpIcon
+            sx={{
+              fontSize: "14px",
+            }}
+          />
         </IconButton>
-        <Input
-          disabled={!isSubtitlesFound}
-          value={asyncVal}
-          onChange={handleInputChange}
-          variant="plain"
-          sx={{
-            backgroundColor: "transparent",
-            width: "96px",
-            height: "40px",
-            border: "1px solid #989898",
-            borderRadius: "12px",
-            fontSize: "md",
-            "--Input-focusedThickness": "0px",
-            "& input": {
-              textAlign: "right",
-              paddingRight: "5px",
-              color: "white",
-            },
-            "&:focus-within": {
-              outline: "none",
-              border: "1px solid #989898",
-            },
-          }}
-          endDecorator={
-            <Typography
-              sx={{
-                color: "#00D0FF",
-                fontWeight: "sm",
-                position: "absolute",
-                right: "5px",
-                fontSize: "xs",
-                pt: "5px",
-              }}
-            >
-              ms
-            </Typography>
-          }
-        />
         <IconButton
           disabled={!isSubtitlesFound}
           size="sm"
           sx={{
-            color: "#989898",
+            color: "#fff",
+            border: "1px solid #fff",
+            width: "10px",
+            height: "10px",
+            borderRadius: "100%",
             "&:hover": {
-              bgcolor: "black",
-              color: "#989898",
+              bgcolor: "#fff",
+              color: "#000",
             },
           }}
           onClick={incrementTime}
         >
-          <AddIcon fontSize="small" />
+          <ExpandMoreIcon
+            sx={{
+              fontSize: "14px",
+            }}
+          />
         </IconButton>
       </Box>
+
+      {/* sync play button */}
       <Button
-        size="md"
         variant="outlined"
-        startDecorator={<SyncIcon fontSize="small" />}
         onClick={handleSync}
         disabled={!isSubtitlesFound}
         sx={{
           width: "96px",
-          height: "40px",
+          height: "55px",
           border: "none",
-          borderRadius: 12,
-          color: "white",
-          background: "rgba(0,151,185,1)",
-          fontWeight: "md",
+          borderRadius: "25px",
+          color: "#000",
+          background: "#ffff",
+          fontSize: "12px",
           "&:hover": {
-            backgroundColor: "rgba(0,151,185,1)",
+            backgroundColor: "#000",
+            color: "#fff",
           },
         }}
       >
-        Sync
+        Sync/Play
       </Button>
     </Box>
   );

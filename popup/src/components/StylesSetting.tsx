@@ -3,7 +3,7 @@ import { FadedDivider } from "./FadedDivider";
 import { Slider } from "@mui/joy";
 import { StyleSetting } from "../utils/types";
 import { useEffect, useState } from "react";
-import { colors } from "../constants/constants";
+import { colorsArray } from "../constants/constants";
 import {
   getFontSizeHandlerButton,
   getStoredStyleSetting,
@@ -76,7 +76,7 @@ const StylesSetting = () => {
   ) {
     return null;
   }
-  
+
   return (
     <Box
       sx={{
@@ -104,7 +104,7 @@ const StylesSetting = () => {
           onClick={() => {
             let _styleSetting = styleSetting;
             if (_styleSetting) {
-              _styleSetting.fontSize = "42px";
+              // _styleSetting.fontSize = "42px";
               handleStyleChange(_styleSetting);
             }
           }}
@@ -126,7 +126,7 @@ const StylesSetting = () => {
           onClick={() => {
             let _styleSetting = styleSetting;
             if (_styleSetting) {
-              _styleSetting.fontSize = "36px";
+              // _styleSetting.fontSize = "36px";
               handleStyleChange(_styleSetting);
             }
           }}
@@ -148,7 +148,7 @@ const StylesSetting = () => {
           onClick={() => {
             let _styleSetting = styleSetting;
             if (_styleSetting) {
-              _styleSetting.fontSize = "30px";
+              // _styleSetting.fontSize = "30px";
               handleStyleChange(_styleSetting);
             }
           }}
@@ -181,7 +181,7 @@ const StylesSetting = () => {
         >
           Subtitle Color
         </Typography>
-        {colors.map((color, index) => (
+        {colorsArray.map((color, index) => (
           <Box
             key={index}
             sx={{

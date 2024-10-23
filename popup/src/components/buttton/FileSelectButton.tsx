@@ -2,7 +2,7 @@ import { Button } from "@mui/joy";
 import { ChangeEvent } from "react";
 import { cleanText, timeToSeconds } from "../../utils/utils";
 import { Subtitle, SubtitleSyncRecordType } from "../../utils/types";
-import { setStorage } from "../../../../shared/chrome-utils";
+import { getStorage, setStorage } from "../../../../shared/chrome-utils";
 
 type FileSelectButtonType = {
   fileName: string;
@@ -56,13 +56,33 @@ const FileSelectButton = ({
         }
       }
     });
-    const SubtitleSyncRecord: SubtitleSyncRecordType = {
+    const subtitleSyncRecord: SubtitleSyncRecordType = {
+      id: currentUrlId,
       subtitleResyncTime: 0,
       syncedSubtitles: subtitleArray,
       fileName,
       isVideoSave: false,
     };
-    await setStorage(currentUrlId, JSON.stringify(SubtitleSyncRecord));
+
+    const _allStoredSubtitles = await getStorage<SubtitleSyncRecordType[]>(
+      "subtitle"
+    );
+
+    // const updatedSubtitleList = _allStoredSubtitles?.map((i) => {
+    //   if (i.id === currentUrlId) {
+    //     return {
+    //       ..._allStoredSubtitles.find((i) => i.id === currentUrlId),
+    //       syncedSubtitles: updatedSubs,
+    //       subtitleResyncTime: newValue / 1000,
+    //     };
+    //   }
+    //   return i;
+    // });
+
+    await setStorage(
+      "subtitle",
+      JSON.stringify([...(_allStoredSubtitles || []), subtitleSyncRecord])
+    );
     setSyncedSubtitles(subtitleArray);
   };
   return (
@@ -81,12 +101,14 @@ const FileSelectButton = ({
             size="md"
             variant="outlined"
             sx={{
-              border: "1px solid white",
+              border: "1px solid #fff",
               borderRadius: "20px",
               color: "white",
-              fontWeight: "md",
+              fontWeight: "600",
+              fontSize: "12px",
               "&:hover": {
-                backgroundColor: "transparent",
+                bgcolor: "#fff",
+                color: "#000",
               },
             }}
           >

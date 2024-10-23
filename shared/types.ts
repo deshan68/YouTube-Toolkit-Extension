@@ -5,6 +5,7 @@ export enum MessageTypes {
   SEND_VIDEO_DETAILS = "SEND_VIDEO_DETAILS",
   REMOVE_SUBTITLES_ELEMENT = "REMOVE_SUBTITLES_ELEMENT",
   APPLY_SUBTITLES = "APPLY_SUBTITLES",
+  APPLY_SUBTITLE_STYLE = "APPLY_SUBTITLE_STYLE",
 }
 
 export type Message = {
@@ -13,3 +14,9 @@ export type Message = {
 };
 
 export type UrlValidation = { isVideoSelected: boolean; isOnYoutube: boolean };
+
+export enum StorageKeys {
+  SUBTITLES = "SUBTITLES",
+  PLAYLIST = "playlist",
+  videoList = "videoList",
+}

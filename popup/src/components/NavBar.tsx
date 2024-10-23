@@ -1,36 +1,44 @@
-import { Typography } from "@mui/joy";
-import { AppBar, Toolbar } from "@mui/material";
-import SubtitlesIcon from "@mui/icons-material/Subtitles";
+import { AppBar, Toolbar, Typography } from "@mui/material";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
-const NavBar = () => {
+const NavBar = ({
+  title,
+  showBackButton,
+  handleBack,
+}: {
+  title: string;
+  showBackButton: boolean;
+  handleBack: () => void;
+}) => {
   return (
-    <AppBar component="nav">
+    <AppBar component={"nav"}>
       <Toolbar
         sx={{
-          bgcolor: "#111111",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
+          bgcolor: "#262626",
           py: 2,
         }}
       >
+        {showBackButton && (
+          <ArrowBackIosIcon
+            onClick={handleBack}
+            sx={{
+              color: "#ffff",
+              cursor: "pointer",
+              fontFamily: "sans-serif",
+              fontWeight: "600",
+              fontSize: "16px",
+            }}
+          />
+        )}
         <Typography
-          level="title-lg"
-          sx={{ fontFamily: "sans-serif", fontWeight: "600", color: "#ffff" }}
-          startDecorator={<SubtitlesIcon fontSize="medium" />}
-        >
-          Subtitle Syncer
-        </Typography>
-        <Typography
-          level="body-xs"
+          variant="subtitle1"
           sx={{
             fontFamily: "sans-serif",
-            color: "#989898",
-            fontWeight: "200",
+            fontWeight: "600",
+            color: "#ffff",
           }}
         >
-          Youtube Subtitle Manager | V1.0.7
+          {title}
         </Typography>
       </Toolbar>
     </AppBar>

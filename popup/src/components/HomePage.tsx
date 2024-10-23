@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box } from "@mui/joy";
+import SkeltonLoader from "./SkeltonLoader";
 import {
   bannerTitles,
   FileSelectionAreaBoxStyle,
@@ -15,35 +15,38 @@ import { getStoredStyleSetting } from "../utils/utils";
 import VideoCard from "./VideoCard";
 import TimeShifter from "./TimeShifter";
 import noSelectedVideoSvg from "../assets/selected-box.svg";
-import GradientButton from "./buttton/GradientButton";
 import FileSelectButton from "./buttton/FileSelectButton";
 import RemoveButton from "./buttton/RemoveButton";
 import SVGBanner from "./SVGBanner";
 import {
   getStorage,
-  removeStorage,
   sendMessageToContent,
+  setStorage,
 } from "../../../shared/chrome-utils";
 import { MessageTypes, UrlValidation } from "../../../shared/types";
 import Instructions from "./Instructions";
 import SavedSubtitlesStatus from "./SavedSubtitlesStatus";
-import SkeltonLoader from "./SkeltonLoader";
+import { Box } from "@mui/material";
 
 function HomePage() {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fileName, setFileName] = useState<string>("");
   const [videoDetails, setVideoDetails] = useState<VideoDetails | null>(null);
   const [syncedSubtitles, setSyncedSubtitles] = useState<Subtitle[]>([]);
   const [currentUrlId, setCurrentUrlId] = useState<string>("");
   const [resyncTime, setResyncTime] = useState<number>(0);
   const [isSubtitlesOn, setIsSubtitlesOn] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [styleSetting, setStyleSetting] = useState<StyleSetting | null>(null);
   const [isValidUrl, setIsValidUrl] = useState<UrlValidation | undefined>(
     undefined
   );
 
   useEffect(() => {
-    checkCurrentURL();
+    const timer = setTimeout(() => {
+      checkCurrentURL();
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const getInitialData = async (): Promise<void> => {
@@ -72,18 +75,27 @@ function HomePage() {
   const loadSubtitleSyncRecordFromStorage = async (
     currentUrlId: string
   ): Promise<void> => {
-    const storedSubtitles = await getStorage<SubtitleSyncRecordType>(
-      currentUrlId
-    );
-    if (storedSubtitles) {
-      setSyncedSubtitles(storedSubtitles.syncedSubtitles);
-      setResyncTime(storedSubtitles.subtitleResyncTime);
-      setFileName(storedSubtitles.fileName);
+    // const storedSubtitles = await getStorage<SubtitleSyncRecordType>(
+    //   currentUrlId
+    // );
+
+    const _storedSubtitles = await getStorage<SubtitleSyncRecordType[]>(
+      "subtitle"
+    ).then((subtitles) => subtitles?.find((sub) => sub.id === currentUrlId));
+
+    if (_storedSubtitles) {
+      setSyncedSubtitles(_storedSubtitles.syncedSubtitles);
+      setResyncTime(_storedSubtitles.subtitleResyncTime);
+      setFileName(_storedSubtitles.fileName);
     }
   };
 
   const removeSubtitleFileFormLocalStorage = async (): Promise<void> => {
-    await removeStorage(currentUrlId);
+    const _allStoredSubtitles = await getStorage<SubtitleSyncRecordType[]>(
+      "subtitle"
+    ).then((subtitles) => subtitles?.filter((sub) => sub.id !== currentUrlId));
+
+    await setStorage("subtitle", JSON.stringify(_allStoredSubtitles));
 
     setFileName("");
     setSyncedSubtitles([]);
@@ -181,16 +193,6 @@ function HomePage() {
           <RemoveButton buttonClick={removeSubtitleFileFormLocalStorage} />
         )}
       </Box>
-
-      {/* play button*/}
-      <GradientButton
-        variant="solid"
-        onClick={() => subtitleStart()}
-        disabled={syncedSubtitles.length === 0}
-        fileName={fileName}
-      >
-        Play on YouTube
-      </GradientButton>
 
       {/* instructions */}
       <Instructions />

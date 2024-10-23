@@ -4,18 +4,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const RemoveButton = ({ buttonClick }: { buttonClick: () => void }) => {
   return (
     <Button
-      size="md"
       variant="outlined"
       sx={{
-        border: "1px solid white",
+        border: "1px solid #fff",
         borderRadius: "20px",
-        color: "white",
-        fontWeight: "md",
+        color: "#fff",
+        fontWeight: "600",
+        fontSize: "12px",
         "&:hover": {
-          backgroundColor: "transparent",
+          bgcolor: "#fff",
+          color: "#000",
         },
       }}
-      startDecorator={<DeleteIcon fontSize="small" />}
+      startDecorator={
+        <DeleteIcon
+          sx={{
+            fontSize: "18px",
+          }}
+        />
+      }
       onClick={buttonClick}
     >
       Remove

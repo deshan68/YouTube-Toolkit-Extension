@@ -17,7 +17,7 @@ function SkeltonLoader() {
         height={180}
         animation="wave"
         variant="rectangular"
-        sx={{ bgcolor: "grey.900", mt: 4, borderRadius: "20px" }}
+        sx={{ bgcolor: "grey.900", mt: 1, borderRadius: "20px" }}
       />
       <Box
         sx={{

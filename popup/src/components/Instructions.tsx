@@ -1,23 +1,24 @@
-import { Box, List, ListItem, Typography } from "@mui/joy";
-import { FadedDivider } from "./FadedDivider";
+import { Box, List, ListItem, Typography } from "@mui/material";
 import { instructions } from "../constants/constants";
-import DoneIcon from "@mui/icons-material/Done";
 
 const Instructions = () => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", width: "90%" }}>
-      <FadedDivider />
-      <List aria-labelledby="decorated-list-demo" sx={{ p: 0, pt: 1 }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "90%",
+        bgcolor: "#262626",
+        borderRadius: "20px",
+        // px: 1,
+        py: 1.5,
+        my: 1,
+      }}
+    >
+      <List sx={{ p: 0 }} dense={true} disablePadding={false}>
         {instructions.map((i, index) => (
           <ListItem key={index}>
-            <DoneIcon
-              fontSize="inherit"
-              sx={{ color: "#989898", fontWeight: "sm" }}
-            />
-            <Typography
-              sx={{ color: "#989898", fontWeight: "sm" }}
-              fontSize="sm"
-            >
+            <Typography sx={{ color: "#989898", fontSize: "12px" }}>
               {i}
             </Typography>
           </ListItem>
