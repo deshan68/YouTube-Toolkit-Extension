@@ -2,6 +2,7 @@ import { StyleSetting, Subtitle } from "../popup/src/utils/types";
 import { Message, MessageTypes } from "../shared/types";
 import {
   onApplySubtitles,
+  onApplySubtitleStyle,
   onOpenPopup,
   onRemoveSubtitlesElement,
   onSearchInitialSubtitle,
@@ -49,6 +50,10 @@ const registerEventListeners = () => {
               message.body?.currentUrlId as string
             ),
           });
+          return true;
+        }
+        case MessageTypes.APPLY_SUBTITLE_STYLE: {
+          onApplySubtitleStyle(message.body?.updatedStyles as StyleSetting);
           return true;
         }
         default:

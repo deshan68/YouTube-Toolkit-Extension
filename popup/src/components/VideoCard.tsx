@@ -1,12 +1,5 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  CardCover,
-  IconButton,
-  Typography,
-} from "@mui/joy";
-import { SavedItemDetails, VideoDetails } from "../utils/types";
+import { Box, Card, CardContent, CardCover, IconButton } from "@mui/joy";
+import { PlaylistItem, SavedItemDetails, VideoDetails } from "../utils/types";
 import { truncateTitle } from "../utils/utils";
 import defaultCover from "../assets/default.png";
 import ClosedCaptionOffIcon from "@mui/icons-material/ClosedCaptionOff";
@@ -20,6 +13,8 @@ import {
   setStorage,
 } from "../../../shared/chrome-utils";
 import { MessageTypes } from "../../../shared/types";
+import { Tooltip, Typography } from "@mui/material";
+import { defaultPlaylist } from "../constants/constants";
 
 interface VideoDetailsProps {
   videoDetails: VideoDetails;
@@ -52,63 +47,84 @@ const VideoCard = ({
   };
 
   const handleVideoSave = async () => {
-    const savedList = await getStorage<SavedItemDetails[]>("savedList");
+    let playList = await getStorage<PlaylistItem[]>("playlist");
 
-    if (!savedList) await setStorage("savedList", JSON.stringify([]));
+    if (playList === undefined) playList = defaultPlaylist;
 
-    if (savedList) {
-      const currentVideo: SavedItemDetails = {
-        videoId: currentUrlId,
-        videoUrl: videoDetails.videoUrl,
-        thumbnailUrl: videoDetails.thumbnailUrl,
-        videoTitle: videoDetails.title,
-        videoAuthorName: videoDetails.authorName,
-      };
-      const videoIndex = savedList.findIndex(
-        (video) => video.videoId === currentVideo.videoId
-      );
-
-      if (videoIndex !== -1) {
-        savedList.splice(videoIndex, 1);
-      } else {
-        savedList.push(currentVideo);
+    const updatedPlayList = playList?.map((folder) => {
+      if (folder.id === 1) {
+        if (folder.videoIdList.includes(currentUrlId)) {
+          folder.videoIdList = folder.videoIdList.filter(
+            (videoId) => videoId !== currentUrlId
+          );
+        } else {
+          folder.videoIdList.push(currentUrlId);
+        }
       }
+      return folder;
+    });
 
-      await setStorage("savedList", JSON.stringify(savedList));
-      checkIsVideoSaved();
+    await setStorage("playlist", JSON.stringify(updatedPlayList));
+
+    // video is already saved in the video list
+    const isSavedOnVideoList = await checkIsVideoSavedOnVideoList();
+
+    if (!isSavedOnVideoList) {
+      const savedList = await getStorage<SavedItemDetails[]>("videoList");
+      const updatedList = [
+        ...(savedList || []),
+        {
+          videoId: currentUrlId,
+          thumbnailUrl: videoDetails?.thumbnailUrl,
+          videoUrl: videoDetails?.videoUrl,
+          videoTitle: videoDetails?.title,
+          videoAuthorName: videoDetails?.authorName,
+        },
+      ];
+      await setStorage("videoList", JSON.stringify(updatedList));
     }
+
+    await checkIsVideoSavedOnWatchLaterFolder();
   };
 
-  const checkIsVideoSaved = async (): Promise<void> => {
-    const savedList = await getStorage<SavedItemDetails[]>("savedList");
+  const checkIsVideoSavedOnWatchLaterFolder = async (): Promise<void> => {
+    const watchLaterList = await getStorage<PlaylistItem[]>("playlist").then(
+      (playlist) => playlist?.find((folder) => folder.id === 1)?.videoIdList
+    );
+    watchLaterList?.includes(currentUrlId)
+      ? setIsSaved(true)
+      : setIsSaved(false);
+  };
 
-    if (savedList) {
-      const videoExists = savedList.some(
-        (video) => video.videoId === currentUrlId
-      );
-      setIsSaved(videoExists);
-    }
+  const checkIsVideoSavedOnVideoList = async (): Promise<boolean> => {
+    const isSaved = await getStorage<SavedItemDetails[]>("videoList").then(
+      (list) => list?.some((video) => video.videoId === currentUrlId)
+    );
+    if (isSaved) return true;
+
+    return false;
   };
 
   useEffect(() => {
-    checkIsVideoSaved();
+    checkIsVideoSavedOnWatchLaterFolder();
+    checkIsVideoSavedOnVideoList();
   }, []);
 
   return (
     <Card
       sx={{
-        width: "310px",
-        height: "180px",
+        width: "315px",
+        height: "160px",
         border: "none",
-        borderRadius: "20px",
         padding: 0,
+        borderRadius: "0px",
       }}
     >
       <CardCover>
         <img
           src={videoDetails.thumbnailUrl || defaultCover}
           loading="lazy"
-          alt=""
+          alt="cover image"
         />
       </CardCover>
       <CardCover
@@ -116,10 +132,8 @@ const VideoCard = ({
           background:
             "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0) 200px), linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0) 300px)",
         }}
-      ></CardCover>
-      <CardContent
-        sx={{ justifyContent: "space-between", height: "100%", m: 2 }}
-      >
+      />
+      <CardContent sx={{ justifyContent: "space-between", m: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "end" }}>
           <Box
             sx={{
@@ -137,6 +151,7 @@ const VideoCard = ({
               color="neutral"
               sx={{
                 bgcolor: "rgba(0 0 0 / 0.4)",
+                borderRadius: "100%",
                 "&:hover, &:focus-within": {
                   bgcolor: "rgba(0 0 0 / 0.4)",
                 },
@@ -146,9 +161,17 @@ const VideoCard = ({
               }}
             >
               {isSubtitlesOn ? (
-                <ClosedCaptionIcon fontSize="medium" />
+                <ClosedCaptionIcon
+                  sx={{
+                    fontSize: "18px",
+                  }}
+                />
               ) : (
-                <ClosedCaptionOffIcon fontSize="medium" />
+                <ClosedCaptionOffIcon
+                  sx={{
+                    fontSize: "18px",
+                  }}
+                />
               )}
             </IconButton>
             <IconButton
@@ -158,6 +181,7 @@ const VideoCard = ({
               color="neutral"
               sx={{
                 bgcolor: "rgba(0 0 0 / 0.4)",
+                borderRadius: "100%",
                 "&:hover, &:focus-within": {
                   bgcolor: "rgba(0 0 0 / 0.4)",
                 },
@@ -168,19 +192,42 @@ const VideoCard = ({
               }}
             >
               {isSaved ? (
-                <BookmarkIcon fontSize="medium" />
+                <Tooltip title="Remove from Watch Later">
+                  <BookmarkIcon
+                    sx={{
+                      fontSize: "18px",
+                    }}
+                  />
+                </Tooltip>
               ) : (
-                <BookmarkBorderIcon fontSize="medium" />
+                <Tooltip title="Save on Watch Later">
+                  <BookmarkBorderIcon
+                    sx={{
+                      fontSize: "18px",
+                    }}
+                  />
+                </Tooltip>
               )}
             </IconButton>
           </Box>
         </Box>
         <Box>
-          <Typography level="title-lg" textColor="#fff">
-            {truncateTitle(videoDetails.title, 20)}
+          <Typography
+            color="#fff"
+            sx={{
+              fontSize: "14px",
+              fontWeight: "600",
+            }}
+          >
+            {truncateTitle(videoDetails.title, 30)}
           </Typography>
-          <Typography level="body-xs" textColor="#989898">
-            {truncateTitle(videoDetails.authorName, 20)}
+          <Typography
+            color="#989898"
+            sx={{
+              fontSize: "12px",
+            }}
+          >
+            {truncateTitle(videoDetails.authorName, 30)}
           </Typography>
         </Box>
       </CardContent>

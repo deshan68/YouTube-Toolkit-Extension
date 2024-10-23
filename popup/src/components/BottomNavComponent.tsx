@@ -10,7 +10,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import StyleIcon from "@mui/icons-material/Style";
 import HomePage from "./HomePage";
-import SavedVideos from "./SavedVideos";
+// import SavedVideos from "./SavedVideos";
 import StylesSetting from "./StylesSetting";
 
 const BottomNavComponent = () => {
@@ -18,7 +18,7 @@ const BottomNavComponent = () => {
 
   const contentComponents = [
     <HomePage key="home" />,
-    <SavedVideos key="saved" />,
+    // <SavedVideos key="saved" />,
     <StylesSetting key="styles" />,
   ];
 

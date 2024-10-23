@@ -5,7 +5,7 @@ const SVGBanner = ({ svg, title }: { svg: string, title: string }) => {
     <Container
       sx={{
         width: "100%",
-        height: "485px",
+        height: "475px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

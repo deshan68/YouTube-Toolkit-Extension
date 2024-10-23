@@ -12,6 +12,7 @@ export interface Subtitle {
 }
 
 export interface SubtitleSyncRecordType {
+  id: string;
   subtitleResyncTime: number;
   syncedSubtitles: Subtitle[];
   fileName: string;
@@ -27,7 +28,21 @@ export interface SavedItemDetails {
 }
 
 export interface StyleSetting {
-  fontSize: string;
+  fontSize: DefaultFontsize;
   fontColor: string;
   backgroundOpacity: string;
+}
+
+export enum DefaultFontsize {
+  Small = "18px",
+  Medium = "36px",
+  Large = "42px",
+}
+
+export interface PlaylistItem {
+  id: number;
+  folderName: string;
+  folderDescription: string;
+  folderColor: string;
+  videoIdList: string[];
 }

@@ -48,6 +48,16 @@ export const onRemoveSubtitlesElement = async (): Promise<void> => {
   }
 };
 
+export const onApplySubtitleStyle = (styleSetting: StyleSetting) => {
+  const subtitleDiv = document.querySelector(".sub-title-div") as HTMLElement;
+
+  if (subtitleDiv) {
+    subtitleDiv.style.color = styleSetting.fontColor;
+    subtitleDiv.style.fontSize = styleSetting.fontSize;
+    subtitleDiv.style.backgroundColor = `rgba(0, 0, 0, ${styleSetting.backgroundOpacity})`;
+  }
+};
+
 export const onApplySubtitles = (
   subtitles: Subtitle[],
   styleSetting: StyleSetting,
