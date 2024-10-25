@@ -80,7 +80,7 @@ const PlaylistManager = ({
     setAnchorEl(null);
   };
 
-  const handleClickItem = (id: number, title: string) => {
+  const handleClickItem = (id: number, title: string): void => {
     setClickedPlayListItemId(null);
     setTitle(title);
     setClickedPlayListItemId(id);
