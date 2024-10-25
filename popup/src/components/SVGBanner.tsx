@@ -13,7 +13,7 @@ const SVGBanner = ({ svg, title }: { svg: string, title: string }) => {
         px: 6,
       }}
     >
-      <Box sx={{ width: "140px", height: "140px", overflow: "hidden", pb: 2 }}>
+      <Box sx={{ width: "140px", height: "140px", overflow: "hidden", pb: 1 }}>
         <img
           src={svg}
           alt="My SVG"

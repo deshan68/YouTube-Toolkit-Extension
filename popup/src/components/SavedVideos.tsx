@@ -9,7 +9,7 @@ import {
   sendMessageToContent,
   setStorage,
 } from "../../../shared/chrome-utils";
-import { MessageTypes } from "../../../shared/types";
+import { MessageTypes, UrlValidation } from "../../../shared/types";
 import { extractVideoIdFromUrl } from "../constants/constants";
 
 interface SetPlaylistFunction<T> {
@@ -28,6 +28,9 @@ const SavedVideos = ({
   const [savedVideoList, setSavedVideoList] = useState<SavedItemDetails[]>([]);
   const [videoDetails, setVideoDetails] = useState<VideoDetails | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isValidUrl, setIsValidUrl] = useState<UrlValidation | undefined>(
+    undefined
+  );
 
   const checkIsVideoSaved = async (): Promise<void> => {
     const videoIdList = playList.find(
@@ -133,13 +136,30 @@ const SavedVideos = ({
     return false;
   };
 
+  const checkCurrentURL = async () => {
+    try {
+      const response = await sendMessageToContent<{
+        isOnYoutube: boolean;
+        isVideoSelected: boolean;
+      }>({
+        type: MessageTypes.OPEN_POPUP,
+      });
+      setIsValidUrl(response);
+      if (response?.isVideoSelected) getVideoDetails();
+    } catch (error) {
+      setIsValidUrl({ isOnYoutube: false, isVideoSelected: false });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     checkIsVideoSaved();
   }, [playList]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      getVideoDetails();
+      checkCurrentURL();
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -221,10 +241,6 @@ const SavedVideos = ({
     );
   }
 
-  if (videoDetails === null) {
-    return;
-  }
-
   return (
     <Box
       sx={{
@@ -238,9 +254,46 @@ const SavedVideos = ({
         color: "#fff",
       }}
     >
-      {savedVideoList.some(
-        (i) => i.videoId === extractVideoIdFromUrl(videoDetails.videoUrl)
-      ) === false && (
+      {videoDetails &&
+        savedVideoList.some(
+          (i) => i.videoId === extractVideoIdFromUrl(videoDetails.videoUrl)
+        ) === false && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "95%",
+              height: "45px",
+              px: 2,
+              bgcolor: "#262626",
+              borderRadius: "12px",
+            }}
+          >
+            <Typography sx={{ fontSize: "12px", color: "#989898" }}>
+              Do you want to save this video here?
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: "12px",
+                color: "#000",
+                cursor: "pointer",
+                bgcolor: "#fff",
+                borderRadius: "15px",
+                height: "25px",
+                width: "50px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onClick={handleOnSaveVideo}
+            >
+              Yes
+            </Typography>
+          </Box>
+        )}
+
+      {!isValidUrl?.isVideoSelected && (
         <Box
           sx={{
             display: "flex",
@@ -254,24 +307,7 @@ const SavedVideos = ({
           }}
         >
           <Typography sx={{ fontSize: "12px", color: "#989898" }}>
-            Do you want to save this video here?
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: "12px",
-              color: "#000",
-              cursor: "pointer",
-              bgcolor: "#fff",
-              borderRadius: "15px",
-              height: "25px",
-              width: "50px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onClick={handleOnSaveVideo}
-          >
-            Yes
+            No videos found to add to this list.
           </Typography>
         </Box>
       )}

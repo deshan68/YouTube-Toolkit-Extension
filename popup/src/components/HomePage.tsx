@@ -58,16 +58,22 @@ function HomePage() {
   };
 
   const checkCurrentURL = async () => {
-    const response = await sendMessageToContent<{
-      isOnYoutube: boolean;
-      isVideoSelected: boolean;
-    }>({
-      type: MessageTypes.OPEN_POPUP,
-    });
-    setIsValidUrl(response);
-    if (response?.isVideoSelected) {
-      getInitialData();
-    } else {
+    try {
+      const response = await sendMessageToContent<{
+        isOnYoutube: boolean;
+        isVideoSelected: boolean;
+      }>({
+        type: MessageTypes.OPEN_POPUP,
+      });
+      setIsValidUrl(response);
+      if (response?.isVideoSelected) {
+        getInitialData();
+      }
+      if (response?.isOnYoutube) {
+        setIsLoading(false);
+      }
+    } catch {
+      setIsValidUrl({ isOnYoutube: false, isVideoSelected: false });
       setIsLoading(false);
     }
   };
@@ -155,6 +161,12 @@ function HomePage() {
 
   if (isLoading) {
     return <SkeltonLoader />;
+  }
+
+  if (!isValidUrl?.isOnYoutube) {
+    return (
+      <SVGBanner svg={noSelectedVideoSvg} title={bannerTitles.INVALID_URL} />
+    );
   }
 
   if (!isValidUrl?.isVideoSelected) {
