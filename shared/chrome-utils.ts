@@ -7,6 +7,7 @@ export const sendMessageToContent = async <T = void>(
     active: true,
     lastFocusedWindow: true,
   });
+
   if (tab.id) {
     const response = await chrome.tabs.sendMessage(tab.id, message);
     return response;
@@ -38,7 +39,7 @@ export const getStorage = <T>(key: string): Promise<T | undefined> => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError);
       } else {
-        const value = result[key] ? JSON.parse(result[key]) as T : undefined;
+        const value = result[key] ? (JSON.parse(result[key]) as T) : undefined;
         resolve(value);
       }
     });

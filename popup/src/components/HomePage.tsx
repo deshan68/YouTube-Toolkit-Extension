@@ -42,11 +42,7 @@ function HomePage() {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      checkCurrentURL();
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    checkCurrentURL();
   }, []);
 
   const getInitialData = async (): Promise<void> => {
@@ -58,16 +54,23 @@ function HomePage() {
   };
 
   const checkCurrentURL = async () => {
-    const response = await sendMessageToContent<{
-      isOnYoutube: boolean;
-      isVideoSelected: boolean;
-    }>({
-      type: MessageTypes.OPEN_POPUP,
-    });
-    setIsValidUrl(response);
-    if (response?.isVideoSelected) {
-      getInitialData();
-    } else {
+    try {
+      const response = await sendMessageToContent<{
+        isOnYoutube: boolean;
+        isVideoSelected: boolean;
+      }>({
+        type: MessageTypes.OPEN_POPUP,
+      });
+      setIsValidUrl(response);
+      if (response?.isVideoSelected) {
+        getInitialData();
+      }
+      if (response?.isOnYoutube && !response.isVideoSelected) {
+        setIsLoading(false);
+      }
+    } catch (e) {
+      console.error(e);
+      setIsValidUrl({ isOnYoutube: false, isVideoSelected: false });
       setIsLoading(false);
     }
   };
@@ -131,7 +134,9 @@ function HomePage() {
     );
     if (response) {
       setVideoDetails(response.videoDetails);
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     }
   };
 
@@ -157,6 +162,12 @@ function HomePage() {
     return <SkeltonLoader />;
   }
 
+  if (!isValidUrl?.isOnYoutube) {
+    return (
+      <SVGBanner svg={noSelectedVideoSvg} title={bannerTitles.INVALID_URL} />
+    );
+  }
+
   if (!isValidUrl?.isVideoSelected) {
     return (
       <SVGBanner
@@ -169,7 +180,7 @@ function HomePage() {
   return (
     <Box sx={HomePageBoxStyle}>
       {/* cover image */}
-      {videoDetails && (
+      {videoDetails && !isLoading && (
         <VideoCard
           videoDetails={videoDetails}
           currentUrlId={currentUrlId}

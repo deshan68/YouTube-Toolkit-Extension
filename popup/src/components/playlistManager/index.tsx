@@ -4,6 +4,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Menu,
+  MenuItem,
   Typography,
 } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -17,9 +19,15 @@ import { useEffect, useState } from "react";
 import SavedVideos from "../SavedVideos";
 import { PlaylistItem } from "../../utils/types";
 import { getStorage, setStorage } from "../../../../shared/chrome-utils";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface SetPlaylistFunction<T> {
   (updateFunction: (prevPlayList: T) => T): void;
+}
+
+interface ContextMenuPosition {
+  mouseX: number;
+  mouseY: number;
 }
 
 const PlaylistManager = ({
@@ -33,6 +41,26 @@ const PlaylistManager = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [playList, setPlayList] = useState<PlaylistItem[]>(defaultPlaylist);
+  const [anchorEl, setAnchorEl] = useState<ContextMenuPosition | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const handleClickListItem = (
+    event: React.MouseEvent<HTMLElement>,
+    item: PlaylistItem
+  ) => {
+    event.preventDefault();
+    setAnchorEl(
+      anchorEl === null
+        ? { mouseX: event.clientX, mouseY: event.clientY }
+        : null
+    );
+    setSelectedIndex(item.id);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -42,7 +70,17 @@ const PlaylistManager = ({
     setOpen(false);
   };
 
-  const handleClickItem = (id: number, title: string) => {
+  const handleDeletePlaylist = async (): Promise<void> => {
+    let updatedList;
+    setPlayList((prev) => {
+      updatedList = prev.filter((i) => i.id !== selectedIndex);
+      return updatedList;
+    });
+    await setStorage("playlist", JSON.stringify(updatedList));
+    setAnchorEl(null);
+  };
+
+  const handleClickItem = (id: number, title: string): void => {
     setClickedPlayListItemId(null);
     setTitle(title);
     setClickedPlayListItemId(id);
@@ -101,6 +139,7 @@ const PlaylistManager = ({
         </Typography>
       </Box>
 
+      {/* play list item */}
       <Box
         sx={{
           display: "flex",
@@ -114,6 +153,7 @@ const PlaylistManager = ({
           <Box
             key={i.folderName}
             onClick={() => handleClickItem(i.id, i.folderName)}
+            onContextMenu={(e) => handleClickListItem(e, i)}
             sx={{
               display: "flex",
               justifyContent: "space-between",
@@ -166,6 +206,34 @@ const PlaylistManager = ({
           setPlayList={setPlayList}
         />
       </Box>
+
+      {/* right click menu */}
+      <Menu
+        id="lock-menu"
+        open={menuOpen}
+        onClose={handleMenuClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          anchorEl !== null
+            ? { top: anchorEl.mouseY, left: anchorEl.mouseX }
+            : undefined
+        }
+        MenuListProps={{
+          sx: {
+            p: 0,
+            fontSize: "12px",
+          },
+        }}
+      >
+        <MenuItem
+          key={"delete"}
+          disabled={selectedIndex === defaultPlaylist[0].id}
+          onClick={handleDeletePlaylist}
+        >
+          <DeleteIcon sx={{ fontSize: "16px" }} />
+          <Typography sx={{ fontSize: "12px", pl: 0.8 }}>Delete</Typography>
+        </MenuItem>
+      </Menu>
     </>
   );
 };
