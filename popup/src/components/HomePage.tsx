@@ -42,11 +42,7 @@ function HomePage() {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      checkCurrentURL();
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    checkCurrentURL();
   }, []);
 
   const getInitialData = async (): Promise<void> => {
@@ -69,10 +65,11 @@ function HomePage() {
       if (response?.isVideoSelected) {
         getInitialData();
       }
-      if (response?.isOnYoutube) {
+      if (response?.isOnYoutube && !response.isVideoSelected) {
         setIsLoading(false);
       }
-    } catch {
+    } catch (e) {
+      console.error(e);
       setIsValidUrl({ isOnYoutube: false, isVideoSelected: false });
       setIsLoading(false);
     }
@@ -137,7 +134,9 @@ function HomePage() {
     );
     if (response) {
       setVideoDetails(response.videoDetails);
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     }
   };
 
@@ -181,7 +180,7 @@ function HomePage() {
   return (
     <Box sx={HomePageBoxStyle}>
       {/* cover image */}
-      {videoDetails && (
+      {videoDetails && !isLoading && (
         <VideoCard
           videoDetails={videoDetails}
           currentUrlId={currentUrlId}

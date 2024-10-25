@@ -86,7 +86,9 @@ const SavedVideos = ({
     );
     if (response) {
       setVideoDetails(response.videoDetails);
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     }
   };
 
@@ -148,7 +150,6 @@ const SavedVideos = ({
       if (response?.isVideoSelected) getVideoDetails();
     } catch (error) {
       setIsValidUrl({ isOnYoutube: false, isVideoSelected: false });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -158,11 +159,7 @@ const SavedVideos = ({
   }, [playList]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      checkCurrentURL();
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    checkCurrentURL();
   }, []);
 
   if (isLoading) {

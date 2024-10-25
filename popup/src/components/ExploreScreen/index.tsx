@@ -131,7 +131,6 @@ function ExploreScreen({
       sx={{
         display: "flex",
         flexDirection: "column",
-        rowGap: 2,
       }}
     >
       {exploreItems.map((item) => (
@@ -141,6 +140,11 @@ function ExploreScreen({
             cursor: "pointer",
             columnGap: 1,
             px: 2,
+            py: 1,
+            "&:hover": {
+              cursor: "pointer",
+              bgcolor: "#262626",
+            },
           }}
           onClick={() => handleExploreItemClick(item.id, item.title)}
         >
