@@ -1,13 +1,18 @@
 # Subtitle Syncer
-YouTube SubSync is a web extension that allows users to add and sync their .srt subtitle files while watching YouTube videos. Enhance your YouTube viewing experience by seamlessly integrating custom subtitles with precise timing.
+YouTube Toolkit is a web extension that allows users to sync custom subtitles, manage playlists, take notes, and access transcripts.
 
-![web extension assets -2](https://github.com/user-attachments/assets/da4f163c-8035-4a10-b7db-ef3356ef623d)
+![3](https://github.com/user-attachments/assets/1a3fe870-d516-4cfb-9a3c-f5ce40d746f1)
+![4](https://github.com/user-attachments/assets/f11e3909-edc4-4f0f-ad97-b6955d9dbec0)
+![5](https://github.com/user-attachments/assets/94282706-3494-4596-8b63-e4e40b648c43)
+![6](https://github.com/user-attachments/assets/9085d00d-16b2-4dc3-ab2c-6bf42adebabd)
 
 ## Features
 
-- Add .srt subtitle files to YouTube videos.
-- Sync subtitle timing to match the video.
-- Easy-to-use interface for adjusting subtitle timing.
+- Subtitle Syncing: Upload your custom .srt subtitle files and adjust timing to perfectly match the video playback.
+- Playlist Manager: Easily organize and save your favorite videos in custom playlists, making them accessible anytime.
+- Subtitle Styling: Customize the look of your subtitles by adjusting font size, color, and background opacity to suit your preferences.
+- Trash Bin: Manage your saved files with the option to delete or restore files as needed.
+- Storage Management: Keep track of your saved subtitle files and other data, with easy-to-use storage controls.
 
 ## Installation
 
