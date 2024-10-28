@@ -1,4 +1,4 @@
-# Subtitle Syncer
+# YouTube-Toolkit-Extension
 YouTube Toolkit is a web extension that allows users to sync custom subtitles, manage playlists, take notes, and access transcripts.
 
 ![3](https://github.com/user-attachments/assets/1a3fe870-d516-4cfb-9a3c-f5ce40d746f1)
@@ -18,11 +18,11 @@ YouTube Toolkit is a web extension that allows users to sync custom subtitles, m
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/YouTube-SubSync.git
+    git clone https://github.com/yourusername/YouTube-Toolkit.git
     ```
 2. Navigate to the project directory:
     ```sh
-    cd YouTube-SubSync
+    cd YouTube-Toolkit
     ```
 3. Install the necessary dependencies:
     ```sh
@@ -34,9 +34,9 @@ YouTube Toolkit is a web extension that allows users to sync custom subtitles, m
 1. Load the extension in your browser:
     - Open your browser's extensions page (usually found in the settings menu).
     - Enable "Developer mode".
-    - Click "Load unpacked" and select the `YouTube-SubSync` directory.
+    - Click "Load unpacked" and select the `YouTube-Toolkit` directory.
 
-2. Open a YouTube video and click on the YouTube SubSync extension icon.
+2. Open a YouTube video and click on the YouTube Toolkit extension icon.
 
 3. Upload your .srt subtitle file.
 
@@ -68,4 +68,4 @@ If you have any questions or feedback, feel free to contact me at arundeshan@gma
 
 ---
 
-**Enjoy seamless subtitle syncing with Subtitle Syncer!**
+**Enjoy seamless subtitle syncing with YouTube Toolkit!**
